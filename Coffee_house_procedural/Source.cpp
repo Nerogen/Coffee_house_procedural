@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 using namespace std;
 
 
@@ -18,6 +19,11 @@ int random() {
 	// get new random number
 	srand(time(NULL));
 	return rand();
+}
+
+int cookingSpeed() {
+	// get random number in range(1, 10)
+	return random() % 3 + 10;
 }
 
 int cappuccino(int& number_of_coffee, int& number_of_milk, int& number_of_syrup, int time_of_make, int& current_time) {
@@ -64,7 +70,7 @@ int dessert(int& number_of_desserts, int delivery_time, int &current_time) {
 	}
 }
 
-int order(int& queue, int& count_of_visitors, int& number_of_desserts, int& number_of_coffee, int& number_of_milk_bottles, int& number_of_syrup, int& time_of_make, int& current_time) {
+int order(int& queue, int& count_of_visitors, int& number_of_desserts, int& number_of_coffee, int& number_of_milk_bottles, int& number_of_syrup, int& time_of_make, int& current_time, map<int, int>& statistics) {
 	// function for service clients 
 	int rating = 0;
 	if (queue) {
@@ -75,6 +81,7 @@ int order(int& queue, int& count_of_visitors, int& number_of_desserts, int& numb
 			int made = dessert(number_of_desserts, time_of_make, current_time);
 			if (made == 1) {
 				rating += 5;
+				statistics[what_need_buy] += 1;
 			} else {
 				rating += 1;
 			}
@@ -84,6 +91,7 @@ int order(int& queue, int& count_of_visitors, int& number_of_desserts, int& numb
 			int made = cappuccino(number_of_coffee, number_of_milk_bottles, number_of_syrup, time_of_make, current_time);
 			if (made == 1) {
 				rating += 5;
+				statistics[what_need_buy] += 1;
 				current_time += time_of_make;
 			} else {
 				rating += 1;
@@ -94,6 +102,7 @@ int order(int& queue, int& count_of_visitors, int& number_of_desserts, int& numb
 			int made = late(number_of_coffee, number_of_milk_bottles, time_of_make, current_time);
 			if (made == 1) {
 				rating += 5;
+				statistics[what_need_buy] += 1;
 				current_time += time_of_make;
 			} else {
 				rating += 1;
@@ -104,6 +113,7 @@ int order(int& queue, int& count_of_visitors, int& number_of_desserts, int& numb
 			int made = espresso(number_of_coffee, time_of_make, current_time);
 			if (made == 1) {
 				rating += 5;
+				statistics[what_need_buy] += 1;
 				current_time += time_of_make;
 			} else {
 				rating += 1;
@@ -125,6 +135,7 @@ void coffee_house(int number_of_desserts, int number_of_coffee, int number_of_mi
 	int current_time = 1;
 	int first_queue = 0;
 	int second_queue = 0;
+	map<int, int> statistics{ {1, 0}, {2, 0}, {3, 0}, {4,0}};
 
 	while (time_of_work >= current_time)
 	{
@@ -156,15 +167,25 @@ void coffee_house(int number_of_desserts, int number_of_coffee, int number_of_mi
 			}
 		}
 
+		// first extend (speed of worker)
+		int speed_of_kooking_for_first_worker = time_of_make / cookingSpeed();
+		int speed_of_kooking_second_worker = time_of_make / cookingSpeed();
 		// two calls 'cause we have two queues
-		rating += order(first_queue, count_of_visitors, number_of_desserts, number_of_coffee, number_of_milk, number_of_syrup, time_of_make, current_time);
-		rating += order(second_queue, count_of_visitors, number_of_desserts, number_of_coffee, number_of_milk, number_of_syrup, time_of_make, current_time);
+		rating += order(first_queue, count_of_visitors, number_of_desserts, number_of_coffee, number_of_milk, number_of_syrup, speed_of_kooking_for_first_worker, current_time, statistics);
+		rating += order(second_queue, count_of_visitors, number_of_desserts, number_of_coffee, number_of_milk, number_of_syrup, speed_of_kooking_second_worker, current_time, statistics);
 		current_time += 1;
 	}
 
 	auto avarage_rating = rating / count_of_visitors;
 
 	cout << "Today rating is: " << avarage_rating << endl;
+	// last extend (all statistics) 
+	cout << "Sales statistics for today: " << endl;
+	cout << "Number of visitors: " << count_of_visitors << endl;
+	cout << "number of sold desserts: " << statistics[1] << endl;
+	cout << "number of sold cappuccino: " << statistics[2] << endl;
+	cout << "number of sold late: " << statistics[3] << endl;
+	cout << "number of sold espresso: " << statistics[4] << endl;
 }
 
 
