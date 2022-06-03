@@ -5,13 +5,13 @@ using namespace std;
 
 void coffee_machine(int& number_of_coffee, int how_much_is_needed, int time_of_make, int& current_time) {
 	// make coffe from a few coffee beans and update time 
-	number_of_coffee -= 1;
+	number_of_coffee -= how_much_is_needed;
 	current_time += time_of_make;
 }
 
 void cappuccinator(int& number_of_milk, int how_much_is_needed, int time_of_make, int& current_time) {
 	// whipping milk and update time 
-	number_of_milk -= 1;
+	number_of_milk -= how_much_is_needed;
 	current_time += time_of_make;
 }
 
